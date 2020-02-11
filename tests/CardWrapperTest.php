@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use ApiBank\ApiBank;
 use ApiBank\Auth\AuthManager;
+use ApiBank\DTObjects\CardOperations;
 use ApiBank\DTObjects\CardRequisitesUrl;
 use ApiBank\Wrappers\CardWrapper;
 use ApiBank\Wrappers\ProductWrapper;
@@ -44,5 +45,19 @@ class CardWrapperTest extends TestCase
 
         $this->assertInstanceOf(CardRequisitesUrl::class, $cardInfo);
         $this->assertIsString($cardInfo->getUrl());
+    }
+
+    public function testOperations()
+    {
+        $bankCardEan = $this->productWrapper->read(45)->current()->getCards()->current()->getEan();
+
+        $periodBegin = (new DateTime())->sub(new DateInterval('P1M'));
+        $periodEnd = new DateTime();
+
+        $transactionsInfo = $this->cardWrapper->operations($bankCardEan, $periodBegin, $periodEnd);
+
+        $this->assertInstanceOf(CardOperations::class, $transactionsInfo);
+        $this->assertInstanceOf(DateTimeInterface::class, $transactionsInfo->getDateFrom());
+        $this->assertInstanceOf(DateTimeInterface::class, $transactionsInfo->getDateTo());
     }
 }

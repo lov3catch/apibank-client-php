@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace ApiBank\Wrappers;
 
 use ApiBank\Auth\Tokens\AccessToken;
+use ApiBank\DTObjects\CardOperations;
 use ApiBank\DTObjects\CardRequisitesUrl;
 use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Psr7\Response;
@@ -47,19 +48,30 @@ class CardWrapper
         return $cardRequisitesUrl;
     }
 
-    public function operations(User $user, GetCardOperationsRequest $request): ResponseInterface
+    public function operations(string $bankCardEan, \DateTimeInterface $periodBegin, \DateTimeInterface $periodEnd): CardOperations
     {
-        // todo: fixme
-        $headers = ['Authorization' => 'Bearer ' . $this->accessToken->asBearer(), 'Content-Type' => 'application/json'];
-        $url = 'cards/' . $user->banking()->cardHolder()->first()->ean() . '/account-extract/';
-        $params = $request->data();
+        $headers = ['Authorization' => $this->accessToken->asBearer()];
+        $url = 'cards/' . $bankCardEan . '/account-extract/';
 
         $options = [
-            'query'   => $params,
+            'query'   => [
+                'periodBegin' => $periodBegin->format('d.m.Y'),
+                'periodEnd'   => $periodEnd->format('d.m.Y'),
+            ],
             'headers' => $headers,
         ];
 
-        return $this->client->request('GET', $url, $options);
+        $response = $this->client->request('GET', $url, $options);
+
+        // todo: throw exception
+        if (200 !== $response->getStatusCode()) return new Response($response->getStatusCode());
+
+        $cardOperationsInfo = json_decode($response->getBody()->getContents(), true);
+
+        $cardOperations = new CardOperations();
+        set_values($cardOperations, $cardOperationsInfo);
+
+        return $cardOperations;
     }
 
     public function p2pTransfer(User $user, Request $request): ResponseInterface
