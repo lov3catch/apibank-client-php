@@ -6,11 +6,18 @@ namespace ApiBank\Wrappers;
 
 use ApiBank\Auth\Tokens\AccessToken;
 use ApiBank\DTObjects\Client as BankClient;
+use ApiBank\DTValues\Birthdate;
+use ApiBank\DTValues\ControlInfo;
+use ApiBank\DTValues\Name;
+use ApiBank\DTValues\Passport;
+use ApiBank\DTValues\PassportDate;
+use ApiBank\DTValues\Patronymic;
 use ApiBank\DTValues\Phone;
+use ApiBank\DTValues\Snils;
+use ApiBank\DTValues\Surname;
 use GuzzleHttp\Client;
 use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Psr7\Response;
-use Psr\Http\Message\ResponseInterface;
 use function Formapro\Values\set_values;
 
 class ClientWrapper
@@ -71,17 +78,42 @@ class ClientWrapper
         return $bankClient;
     }
 
-    public function upgrade(User $user, UpgradeAnonymousClientRequest $request): ResponseInterface
+    public function upgrade(
+        int $bankClientId,
+        Surname $surname,
+        Name $name,
+        Patronymic $patronymic,
+        Passport $passport,
+        PassportDate $passportDate,
+        Birthdate $birthdate,
+        Snils $snils,
+        ControlInfo $controlInfo
+    ): BankClient
     {
-        // todo: complete me
-        $jsonData = $request->data();
         $headers = ['Authorization' => $this->accessToken->asBearer(), 'Content-Type' => 'application/json'];
+        $body = [
+            'surname'       => $surname->value(),
+            'name'          => $name->value(),
+            'patronymic'    => $patronymic->value(),
+            'passport'      => $passport->value(),
+            'passport_date' => $passportDate->value(),
+            'birthdate'     => $birthdate->value(),
+            'snils'         => $snils->value(),
+            'control_info'  => $controlInfo->value(),
+        ];
 
         $options = [
-            'body'    => json_encode($jsonData),
+            'body'    => json_encode($body),
             'headers' => $headers,
         ];
 
-        return $this->client->post('clients/' . $user->banking()->id() . '/upgrade-account-level-to-uprid', $options);
+        $response = $this->client->post('clients/' . $bankClientId . '/upgrade-account-level-to-uprid', $options);
+
+        // todo: throw exception
+        if (200 !== $response->getStatusCode()) return new Response($response->getStatusCode());
+
+        $updateInfo = json_decode($response->getBody()->getContents(), true);
+
+        return $this->read($updateInfo['client_id']);
     }
 }
