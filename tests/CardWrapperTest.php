@@ -6,6 +6,7 @@ use ApiBank\ApiBank;
 use ApiBank\Auth\AuthManager;
 use ApiBank\DTObjects\CardOperations;
 use ApiBank\DTObjects\CardRequisitesUrl;
+use ApiBank\DTObjects\P2pTransfer;
 use ApiBank\Wrappers\CardWrapper;
 use ApiBank\Wrappers\ProductWrapper;
 use PHPUnit\Framework\TestCase;
@@ -59,5 +60,16 @@ class CardWrapperTest extends TestCase
         $this->assertInstanceOf(CardOperations::class, $transactionsInfo);
         $this->assertInstanceOf(DateTimeInterface::class, $transactionsInfo->getDateFrom());
         $this->assertInstanceOf(DateTimeInterface::class, $transactionsInfo->getDateTo());
+    }
+
+    public function testP2pTransfer()
+    {
+        $bankCardEan = $this->productWrapper->read(45)->current()->getCards()->current()->getEan();
+
+        $p2pTransferInfo = $this->cardWrapper->p2pTransfer($bankCardEan, 'http://example.com');
+
+        $this->assertInstanceOf(P2pTransfer::class, $p2pTransferInfo);
+        $this->assertIsString($p2pTransferInfo->getPaymentPageUrl());
+        $this->assertIsString($p2pTransferInfo->getOperationId());
     }
 }

@@ -7,9 +7,9 @@ namespace ApiBank\Wrappers;
 use ApiBank\Auth\Tokens\AccessToken;
 use ApiBank\DTObjects\CardOperations;
 use ApiBank\DTObjects\CardRequisitesUrl;
+use ApiBank\DTObjects\P2pTransfer;
 use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Psr7\Response;
-use Psr\Http\Message\ResponseInterface;
 use function Formapro\Values\set_values;
 
 class CardWrapper
@@ -74,18 +74,26 @@ class CardWrapper
         return $cardOperations;
     }
 
-    public function p2pTransfer(User $user, Request $request): ResponseInterface
+    public function p2pTransfer(string $bankCardEan, string $successPageUrl): P2pTransfer
     {
-        // todo: fixme
-        $headers = ['Authorization' => 'Bearer ' . $this->accessToken->asBearer(), 'Content-Type' => 'application/json'];
-        $url = 'cards/' . $user->banking()->cardHolder()->first()->ean() . '/p2p-webpage';
-        $body = ['successPageUrl' => 'http://example.com'];     // todo: опаньки
+        $headers = ['Authorization' => $this->accessToken->asBearer(), 'Content-Type' => 'application/json'];
+        $url = 'cards/' . $bankCardEan . '/p2p-webpage';
 
         $options = [
-            'body'    => json_encode($body),
+            'body'    => json_encode(['successPageUrl' => $successPageUrl]),
             'headers' => $headers,
         ];
 
-        return $this->client->post($url, $options);
+        $response = $this->client->post($url, $options);
+
+        // todo: throw exception
+        if (200 !== $response->getStatusCode()) return new Response($response->getStatusCode());
+
+        $p2pTransferInfo = json_decode($response->getBody()->getContents(), true);
+
+        $p2pTransfer = new P2pTransfer();
+        set_values($p2pTransfer, $p2pTransferInfo);
+
+        return $p2pTransfer;
     }
 }
