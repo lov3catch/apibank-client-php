@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 use ApiBank\ApiBank;
 use ApiBank\Auth\AuthManager;
+use ApiBank\DTObjects\CardRequisitesUrl;
 use ApiBank\Wrappers\CardWrapper;
 use ApiBank\Wrappers\ProductWrapper;
-use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\TestCase;
 
 class CardWrapperTest extends TestCase
@@ -39,10 +39,10 @@ class CardWrapperTest extends TestCase
 
     public function testRead()
     {
-        $this->markTestSkipped('Not working yes. Waiting...');
         $bankCardEan = $this->productWrapper->read(45)->current()->getCards()->current()->getEan();
         $cardInfo = $this->cardWrapper->read($bankCardEan);
 
-        $this->assertInstanceOf(Response::class, $cardInfo);
+        $this->assertInstanceOf(CardRequisitesUrl::class, $cardInfo);
+        $this->assertIsString($cardInfo->getUrl());
     }
 }

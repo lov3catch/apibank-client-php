@@ -5,8 +5,11 @@ declare(strict_types=1);
 namespace ApiBank\Wrappers;
 
 use ApiBank\Auth\Tokens\AccessToken;
+use ApiBank\DTObjects\CardRequisitesUrl;
 use GuzzleHttp\ClientInterface;
+use GuzzleHttp\Psr7\Response;
 use Psr\Http\Message\ResponseInterface;
+use function Formapro\Values\set_values;
 
 class CardWrapper
 {
@@ -26,13 +29,22 @@ class CardWrapper
         $this->client = $client;
     }
 
-    public function read(string $bankCardEan): ResponseInterface
+    public function read(string $bankCardEan): CardRequisitesUrl
     {
-        // todo: fixme
         $headers = ['Authorization' => $this->accessToken->asBearer()];
-        $url = 'virtual_cards/' . $bankCardEan . '/page';
+        $url = 'virtual-cards/' . $bankCardEan . '/page';
 
-        return $this->client->request('GET', $url, ['headers' => $headers]);
+        $response = $this->client->request('GET', $url, ['headers' => $headers]);
+
+        // todo: throw exception
+        if (200 !== $response->getStatusCode()) return new Response($response->getStatusCode());
+
+        $cardRequisitesUrlInfo = json_decode($response->getBody()->getContents(), true);
+
+        $cardRequisitesUrl = new CardRequisitesUrl();
+        set_values($cardRequisitesUrl, $cardRequisitesUrlInfo);
+
+        return $cardRequisitesUrl;
     }
 
     public function operations(User $user, GetCardOperationsRequest $request): ResponseInterface
