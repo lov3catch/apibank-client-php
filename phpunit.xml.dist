@@ -16,8 +16,12 @@
         beStrictAboutResourceUsageDuringSmallTests="true"
         beStrictAboutChangesToGlobalState="true">
     <testsuites>
-        <testsuite name="unit">
-            <directory>./tests</directory>
+        <testsuite name="step-by-step">
+            <file>tests/AuthManagerTest.php</file>
+            <file>tests/ApiBankTest.php</file>
+            <file>tests/ClientWrapperTest.php</file>
+            <file>tests/ProductWrapperTest.php</file>
+            <file>tests/CardWrapperTest.php</file>
         </testsuite>
     </testsuites>
     <filter>
@@ -26,6 +30,23 @@
         </whitelist>
     </filter>
     <php>
-        <env name="API_KEY" value="fakeApiKey" force="true"/>
+        <env name="APP_ID" value="card-example" force="true"/>
+        <env name="APP_SECRET" value="5638433a-9de8-4af7-a5f3-47db940b102a" force="true"/>
+        <env name="LOGIN" value="operator-example" force="true"/>
+        <env name="PASSWORD" value="15082020" force="true"/>
+        <env name="GENERATE_TOKEN_URL"
+             value="https://stage-0.apibank.club/auth/realms/Physics/protocol/openid-connect/token" force="true"/>
+        <env name="REFRESH_TOKEN_URL" value="https://stage-0.apibank.club/auth/" force="true"/>
+        <env name="VERIFY_SSL" value="false" force="true"/>
+        <env name="API_URL" value="http://stage-0.apibank.club/physics-v3/api/v3/" force="true"/>
+        <env name="USER_PHONE" value="9154422453" force="true"/>
+        <env name="USER_SURNAME" value="Begins" force="true"/>
+        <env name="USER_NAME" value="Froddo" force="true"/>
+        <env name="USER_PATRONYMIC" value="Vlastelinovich" force="true"/>
+        <env name="USER_PASSPORT" value="4551197707" force="true"/>
+        <env name="USER_PASSPORT_DATE" value="03.07.2000" force="true"/>
+        <env name="USER_BIRTHDATE" value="03.08.1990" force="true"/>
+        <env name="USER_SNILS" value="15498979561" force="true"/>
+        <env name="USER_CONTROL_INFO" value="qwerty" force="true"/>
     </php>
 </phpunit>

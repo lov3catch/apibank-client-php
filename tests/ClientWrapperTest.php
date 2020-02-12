@@ -11,6 +11,7 @@ use ApiBank\DTValues\Name;
 use ApiBank\DTValues\Passport;
 use ApiBank\DTValues\PassportDate;
 use ApiBank\DTValues\Patronymic;
+use ApiBank\DTValues\Phone;
 use ApiBank\DTValues\Snils;
 use ApiBank\DTValues\Surname;
 use ApiBank\Wrappers\ClientWrapper;
@@ -41,20 +42,27 @@ class ClientWrapperTest extends TestCase
     {
         $clientInfo = $this->clientWrapper->create(new Phone(getenv('USER_PHONE')));
 
+        global $newBankClient;
+        $newBankClient = $clientInfo;
+
         $this->assertInstanceOf(BankClient::class, $clientInfo);
     }
 
     public function testRead()
     {
-        $clientInfo = $this->clientWrapper->read(45);
+        global $newBankClient;
+
+        $clientInfo = $this->clientWrapper->read($newBankClient->getId());
 
         $this->assertInstanceOf(BankClient::class, $clientInfo);
     }
 
     public function testUpdate()
     {
+        global $newBankClient;
+
         $updateInfo = $this->clientWrapper->upgrade(
-            45,
+            $newBankClient->getId(),
             new Surname(getenv('USER_SURNAME')),
             new Name(getenv('USER_NAME')),
             new Patronymic(getenv('USER_PATRONYMIC')),

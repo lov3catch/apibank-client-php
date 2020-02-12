@@ -41,7 +41,9 @@ class CardWrapperTest extends TestCase
 
     public function testRead()
     {
-        $bankCardEan = $this->productWrapper->read(45)->current()->getCards()->current()->getEan();
+        global $newBankClient;
+
+        $bankCardEan = $this->productWrapper->read($newBankClient->getId())->current()->getCards()->current()->getEan();
         $cardInfo = $this->cardWrapper->read($bankCardEan);
 
         $this->assertInstanceOf(CardRequisitesUrl::class, $cardInfo);
@@ -50,7 +52,9 @@ class CardWrapperTest extends TestCase
 
     public function testOperations()
     {
-        $bankCardEan = $this->productWrapper->read(45)->current()->getCards()->current()->getEan();
+        global $newBankClient;
+
+        $bankCardEan = $this->productWrapper->read($newBankClient->getId())->current()->getCards()->current()->getEan();
 
         $periodBegin = (new DateTime())->sub(new DateInterval('P1M'));
         $periodEnd = new DateTime();
@@ -64,7 +68,9 @@ class CardWrapperTest extends TestCase
 
     public function testP2pTransfer()
     {
-        $bankCardEan = $this->productWrapper->read(45)->current()->getCards()->current()->getEan();
+        global $newBankClient;
+
+        $bankCardEan = $this->productWrapper->read($newBankClient->getId())->current()->getCards()->current()->getEan();
 
         $p2pTransferInfo = $this->cardWrapper->p2pTransfer($bankCardEan, 'http://example.com');
 

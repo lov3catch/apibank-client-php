@@ -31,7 +31,8 @@ class ProductWrapperTest extends TestCase
 
     public function testRead()
     {
-        $userProducts = $this->productWrapper->read(45);
+        global $newBankClient;
+        $userProducts = $this->productWrapper->read($newBankClient->getId());
 
         $this->assertInstanceOf(Generator::class, $userProducts);
 
