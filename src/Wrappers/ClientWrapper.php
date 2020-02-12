@@ -15,9 +15,9 @@ use ApiBank\DTValues\Patronymic;
 use ApiBank\DTValues\Phone;
 use ApiBank\DTValues\Snils;
 use ApiBank\DTValues\Surname;
+use ApiBank\Factories\ExceptionFactory;
 use GuzzleHttp\Client;
 use GuzzleHttp\ClientInterface;
-use GuzzleHttp\Psr7\Response;
 use function Formapro\Values\set_values;
 
 class ClientWrapper
@@ -51,10 +51,11 @@ class ClientWrapper
             'headers' => $headers,
         ];
 
-        // todo: validate and throw exception if something went wrong
-        // todo: throw exception if user exists
-        $bankClientId = json_decode($this->client->post('clients/anonymous', $options)->getBody()->getContents(), true)['client_id'];
-        return $this->read($bankClientId);
+        $response = $this->client->post('clients/anonymous', $options);
+
+        if (200 !== $response->getStatusCode()) throw (new ExceptionFactory())->fromResponse($response);
+
+        return $this->read(json_decode($response->getBody()->getContents(), true)['client_id']);
     }
 
     public function read(int $bankClientId): BankClient
@@ -67,8 +68,7 @@ class ClientWrapper
 
         $response = $this->client->get('clients/' . $bankClientId, $options);
 
-        // todo: throw exception
-        if (200 !== $response->getStatusCode()) return new Response($response->getStatusCode());
+        if (200 !== $response->getStatusCode()) throw (new ExceptionFactory())->fromResponse($response);
 
         $clientInfo = json_decode($response->getBody()->getContents(), true);
 
@@ -109,11 +109,8 @@ class ClientWrapper
 
         $response = $this->client->post('clients/' . $bankClientId . '/upgrade-account-level-to-uprid', $options);
 
-        // todo: throw exception
-        if (200 !== $response->getStatusCode()) return new Response($response->getStatusCode());
+        if (200 !== $response->getStatusCode()) throw (new ExceptionFactory())->fromResponse($response);
 
-        $updateInfo = json_decode($response->getBody()->getContents(), true);
-
-        return $this->read($updateInfo['client_id']);
+        return $this->read(json_decode($response->getBody()->getContents(), true)['client_id']);
     }
 }

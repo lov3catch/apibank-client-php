@@ -6,11 +6,11 @@ namespace ApiBank\Wrappers;
 
 use ApiBank\Auth\Tokens\AccessToken;
 use ApiBank\DTObjects\Product;
+use ApiBank\Factories\ExceptionFactory;
 use Formapro\Values\ObjectsTrait;
 use Formapro\Values\ValuesTrait;
 use GuzzleHttp\Client;
 use GuzzleHttp\ClientInterface;
-use GuzzleHttp\Psr7\Response;
 use function Formapro\Values\set_values;
 
 class ProductWrapper
@@ -36,6 +36,7 @@ class ProductWrapper
     /**
      * @param int $bankClientId
      * @return \Generator
+     * @throws \Throwable
      */
     public function read(int $bankClientId): \Generator
     {
@@ -47,10 +48,9 @@ class ProductWrapper
 
         $response = $this->client->get('clients/' . $bankClientId . '/products', $options);
 
-        // todo: throw exception
-        if (200 !== $response->getStatusCode()) return new Response($response->getStatusCode());
+        if (200 !== $response->getStatusCode()) throw (new ExceptionFactory())->fromResponse($response);
 
-        $productsInfo = json_decode($response->getBody()->read($response->getBody()->getSize()), true);
+        $productsInfo = json_decode($response->getBody()->getContents(), true);
 
         foreach ($productsInfo as $productInfo) {
             $product = new Product();

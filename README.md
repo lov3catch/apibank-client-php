@@ -7,13 +7,5 @@ Step 1: Create token
 
 Step 2: Send requests
 
-
-PS: feel free to pullrequest
-
-**TODO:**
-1. Custom exceptions
-2. Ean/ClientBank ID shared by testcases
-3. Does I can simplify this?
-4. Upgrade documentation
-5. Improve code quality (B -> A -> A++)
+PS: feel free to make pullrequest
 

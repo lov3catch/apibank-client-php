@@ -8,8 +8,8 @@ use ApiBank\Auth\Tokens\AccessToken;
 use ApiBank\DTObjects\CardOperations;
 use ApiBank\DTObjects\CardRequisitesUrl;
 use ApiBank\DTObjects\P2pTransfer;
+use ApiBank\Factories\ExceptionFactory;
 use GuzzleHttp\ClientInterface;
-use GuzzleHttp\Psr7\Response;
 use function Formapro\Values\set_values;
 
 class CardWrapper
@@ -37,8 +37,7 @@ class CardWrapper
 
         $response = $this->client->request('GET', $url, ['headers' => $headers]);
 
-        // todo: throw exception
-        if (200 !== $response->getStatusCode()) return new Response($response->getStatusCode());
+        if (200 !== $response->getStatusCode()) throw (new ExceptionFactory())->fromResponse($response);
 
         $cardRequisitesUrlInfo = json_decode($response->getBody()->getContents(), true);
 
@@ -63,8 +62,7 @@ class CardWrapper
 
         $response = $this->client->request('GET', $url, $options);
 
-        // todo: throw exception
-        if (200 !== $response->getStatusCode()) return new Response($response->getStatusCode());
+        if (200 !== $response->getStatusCode()) throw (new ExceptionFactory())->fromResponse($response);
 
         $cardOperationsInfo = json_decode($response->getBody()->getContents(), true);
 
@@ -86,8 +84,7 @@ class CardWrapper
 
         $response = $this->client->post($url, $options);
 
-        // todo: throw exception
-        if (200 !== $response->getStatusCode()) return new Response($response->getStatusCode());
+        if (200 !== $response->getStatusCode()) throw (new ExceptionFactory())->fromResponse($response);
 
         $p2pTransferInfo = json_decode($response->getBody()->getContents(), true);
 
