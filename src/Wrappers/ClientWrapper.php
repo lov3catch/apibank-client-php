@@ -18,10 +18,13 @@ use ApiBank\DTValues\Surname;
 use ApiBank\Factories\ExceptionFactory;
 use GuzzleHttp\Client;
 use GuzzleHttp\ClientInterface;
+use GuzzleHttp\Exception\ClientException;
 use function Formapro\Values\set_values;
 
 class ClientWrapper
 {
+    private const BANK_CLIENT_ID_KEY = 'client_id';
+
     /**
      * @var Client
      */
@@ -39,7 +42,10 @@ class ClientWrapper
 
     public function create(Phone $phone): BankClient
     {
-        $headers = ['Authorization' => $this->accessToken->asBearer(), 'Content-Type' => 'application/json'];
+        $headers = [
+            'Authorization' => $this->accessToken->asBearer(),
+            'Content-Type'  => 'application/json',
+        ];
 
         $data = [
             'bank_code' => 'AKBARS',
@@ -51,31 +57,39 @@ class ClientWrapper
             'headers' => $headers,
         ];
 
-        $response = $this->client->post('clients/anonymous', $options);
+        try {
+            $response = $this->client->post('clients/anonymous', $options);
 
-        if (200 !== $response->getStatusCode()) throw (new ExceptionFactory())->fromResponse($response);
+            $bankClientId = json_decode($response->getBody()->getContents(), true)[self::BANK_CLIENT_ID_KEY];
 
-        return $this->read(json_decode($response->getBody()->getContents(), true)['client_id']);
+            return $this->read($bankClientId);
+        } catch (ClientException $exception) {
+            throw (new ExceptionFactory())->fromResponse($exception->getResponse());
+        }
     }
 
     public function read(int $bankClientId): BankClient
     {
-        $headers = ['Authorization' => $this->accessToken->asBearer()];
+        $headers = [
+            'Authorization' => $this->accessToken->asBearer(),
+        ];
 
         $options = [
             'headers' => $headers,
         ];
 
-        $response = $this->client->get('clients/' . $bankClientId, $options);
+        try {
+            $response = $this->client->get('clients/' . $bankClientId, $options);
 
-        if (200 !== $response->getStatusCode()) throw (new ExceptionFactory())->fromResponse($response);
+            $clientInfo = json_decode($response->getBody()->getContents(), true);
 
-        $clientInfo = json_decode($response->getBody()->getContents(), true);
+            $bankClient = new BankClient();
+            set_values($bankClient, $clientInfo);
 
-        $bankClient = new BankClient();
-        set_values($bankClient, $clientInfo);
-
-        return $bankClient;
+            return $bankClient;
+        } catch (ClientException $exception) {
+            throw (new ExceptionFactory())->fromResponse($exception->getResponse());
+        }
     }
 
     public function upgrade(
@@ -90,7 +104,11 @@ class ClientWrapper
         ControlInfo $controlInfo
     ): BankClient
     {
-        $headers = ['Authorization' => $this->accessToken->asBearer(), 'Content-Type' => 'application/json'];
+        $headers = [
+            'Authorization' => $this->accessToken->asBearer(),
+            'Content-Type'  => 'application/json',
+        ];
+
         $body = [
             'surname'       => $surname->value(),
             'name'          => $name->value(),
@@ -107,10 +125,14 @@ class ClientWrapper
             'headers' => $headers,
         ];
 
-        $response = $this->client->post('clients/' . $bankClientId . '/upgrade-account-level-to-uprid', $options);
+        try {
+            $response = $this->client->post('clients/' . $bankClientId . '/upgrade-account-level-to-uprid', $options);
 
-        if (200 !== $response->getStatusCode()) throw (new ExceptionFactory())->fromResponse($response);
+            $bankClientId = json_decode($response->getBody()->getContents(), true)[self::BANK_CLIENT_ID_KEY];
 
-        return $this->read(json_decode($response->getBody()->getContents(), true)['client_id']);
+            return $this->read($bankClientId);
+        } catch (ClientException $exception) {
+            throw (new ExceptionFactory())->fromResponse($exception->getResponse());
+        }
     }
 }

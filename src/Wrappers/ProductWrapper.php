@@ -11,6 +11,7 @@ use Formapro\Values\ObjectsTrait;
 use Formapro\Values\ValuesTrait;
 use GuzzleHttp\Client;
 use GuzzleHttp\ClientInterface;
+use GuzzleHttp\Exception\ClientException;
 use function Formapro\Values\set_values;
 
 class ProductWrapper
@@ -33,30 +34,27 @@ class ProductWrapper
         $this->client = $client;
     }
 
-    /**
-     * @param int $bankClientId
-     * @return \Generator
-     * @throws \Throwable
-     */
-    public function read(int $bankClientId): \Generator
+    public function read(int $bankClientId): Product
     {
-        $headers = ['Authorization' => $this->accessToken->asBearer()];
+        $headers = [
+            'Authorization' => $this->accessToken->asBearer(),
+        ];
 
         $options = [
             'headers' => $headers,
         ];
 
-        $response = $this->client->get('clients/' . $bankClientId . '/products', $options);
+        try {
+            $response = $this->client->get('clients/' . $bankClientId . '/products', $options);
 
-        if (200 !== $response->getStatusCode()) throw (new ExceptionFactory())->fromResponse($response);
-
-        $productsInfo = json_decode($response->getBody()->getContents(), true);
-
-        foreach ($productsInfo as $productInfo) {
-            $product = new Product();
-            set_values($product, $productInfo);
-
-            yield $product;
+            // todo: return first now. In future can be array. But now - return first.
+            foreach (json_decode($response->getBody()->getContents(), true) as $productInfo) {
+                $product = new Product();
+                set_values($product, $productInfo);
+                return $product;
+            }
+        } catch (ClientException $exception) {
+            throw (new ExceptionFactory())->fromResponse($exception->getResponse());
         }
     }
 }

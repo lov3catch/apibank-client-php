@@ -19,13 +19,13 @@ class ExceptionFactory
 
         $responseData = json_decode($response->getBody()->getContents(), true);
 
-        if (isset($responseData['errors']['code']) || isset($responseData['errors']['message'])) return new \Exception(self::DEFAULT_EXCEPTION_MESSAGE);
+        if (!isset($responseData['errors'][0]['code']) || !isset($responseData['errors'][0]['message'])) return new \Exception(self::DEFAULT_EXCEPTION_MESSAGE);
 
         /**
          * @var $exception \Exception
          */
         foreach ([new DuplicateClientException(), new UpgradeClientException()] as $exception) {
-            if ($exception->getCode() === $responseData['errors']['code']) return $exception;
+            if ($exception->getCode() === $responseData['errors'][0]['code']) return $exception;
         }
 
         return new \Exception(self::DEFAULT_EXCEPTION_MESSAGE);

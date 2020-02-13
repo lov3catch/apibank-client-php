@@ -10,6 +10,7 @@ use ApiBank\DTObjects\CardRequisitesUrl;
 use ApiBank\DTObjects\P2pTransfer;
 use ApiBank\Factories\ExceptionFactory;
 use GuzzleHttp\ClientInterface;
+use GuzzleHttp\Exception\ClientException;
 use function Formapro\Values\set_values;
 
 class CardWrapper
@@ -32,25 +33,33 @@ class CardWrapper
 
     public function read(string $bankCardEan): CardRequisitesUrl
     {
-        $headers = ['Authorization' => $this->accessToken->asBearer()];
-        $url = 'virtual-cards/' . $bankCardEan . '/page';
+        $headers = [
+            'Authorization' => $this->accessToken->asBearer(),
+        ];
 
-        $response = $this->client->request('GET', $url, ['headers' => $headers]);
+        $options = [
+            'headers' => $headers,
+        ];
 
-        if (200 !== $response->getStatusCode()) throw (new ExceptionFactory())->fromResponse($response);
+        try {
+            $response = $this->client->request('GET', 'virtual-cards/' . $bankCardEan . '/page', $options);
 
-        $cardRequisitesUrlInfo = json_decode($response->getBody()->getContents(), true);
+            $cardRequisitesUrlInfo = json_decode($response->getBody()->getContents(), true);
 
-        $cardRequisitesUrl = new CardRequisitesUrl();
-        set_values($cardRequisitesUrl, $cardRequisitesUrlInfo);
+            $cardRequisitesUrl = new CardRequisitesUrl();
+            set_values($cardRequisitesUrl, $cardRequisitesUrlInfo);
 
-        return $cardRequisitesUrl;
+            return $cardRequisitesUrl;
+        } catch (ClientException $exception) {
+            throw (new ExceptionFactory())->fromResponse($exception->getResponse());
+        }
     }
 
     public function operations(string $bankCardEan, \DateTimeInterface $periodBegin, \DateTimeInterface $periodEnd): CardOperations
     {
-        $headers = ['Authorization' => $this->accessToken->asBearer()];
-        $url = 'cards/' . $bankCardEan . '/account-extract/';
+        $headers = [
+            'Authorization' => $this->accessToken->asBearer(),
+        ];
 
         $options = [
             'query'   => [
@@ -60,37 +69,43 @@ class CardWrapper
             'headers' => $headers,
         ];
 
-        $response = $this->client->request('GET', $url, $options);
+        try {
+            $response = $this->client->request('GET', 'cards/' . $bankCardEan . '/account-extract/', $options);
 
-        if (200 !== $response->getStatusCode()) throw (new ExceptionFactory())->fromResponse($response);
+            $cardOperationsInfo = json_decode($response->getBody()->getContents(), true);
 
-        $cardOperationsInfo = json_decode($response->getBody()->getContents(), true);
+            $cardOperations = new CardOperations();
+            set_values($cardOperations, $cardOperationsInfo);
 
-        $cardOperations = new CardOperations();
-        set_values($cardOperations, $cardOperationsInfo);
-
-        return $cardOperations;
+            return $cardOperations;
+        } catch (ClientException $exception) {
+            throw (new ExceptionFactory())->fromResponse($exception->getResponse());
+        }
     }
 
     public function p2pTransfer(string $bankCardEan, string $successPageUrl): P2pTransfer
     {
-        $headers = ['Authorization' => $this->accessToken->asBearer(), 'Content-Type' => 'application/json'];
-        $url = 'cards/' . $bankCardEan . '/p2p-webpage';
+        $headers = [
+            'Authorization' => $this->accessToken->asBearer(),
+            'Content-Type'  => 'application/json',
+        ];
 
         $options = [
             'body'    => json_encode(['successPageUrl' => $successPageUrl]),
             'headers' => $headers,
         ];
 
-        $response = $this->client->post($url, $options);
+        try {
+            $response = $this->client->post('cards/' . $bankCardEan . '/p2p-webpage', $options);
 
-        if (200 !== $response->getStatusCode()) throw (new ExceptionFactory())->fromResponse($response);
+            $p2pTransferInfo = json_decode($response->getBody()->getContents(), true);
 
-        $p2pTransferInfo = json_decode($response->getBody()->getContents(), true);
+            $p2pTransfer = new P2pTransfer();
+            set_values($p2pTransfer, $p2pTransferInfo);
 
-        $p2pTransfer = new P2pTransfer();
-        set_values($p2pTransfer, $p2pTransferInfo);
-
-        return $p2pTransfer;
+            return $p2pTransfer;
+        } catch (ClientException $exception) {
+            throw (new ExceptionFactory())->fromResponse($exception->getResponse());
+        }
     }
 }

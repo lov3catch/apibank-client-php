@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 use ApiBank\ApiBank;
 use ApiBank\Auth\AuthManager;
+use ApiBank\Auth\Tokens\AccessToken;
 use ApiBank\DTObjects\CardOperations;
 use ApiBank\DTObjects\CardRequisitesUrl;
 use ApiBank\DTObjects\P2pTransfer;
+use ApiBank\Exceptions\UnauthorizedException;
 use ApiBank\Wrappers\CardWrapper;
 use ApiBank\Wrappers\ProductWrapper;
 use PHPUnit\Framework\TestCase;
@@ -39,11 +41,25 @@ class CardWrapperTest extends TestCase
         $this->cardWrapper = $apiBank->card();
     }
 
+    public function testUnauthorized()
+    {
+        $this->expectException(UnauthorizedException::class);
+
+        global $newBankClient;
+
+        $bankCardEan = $this->productWrapper->read($newBankClient->getId())->getCards()->current()->getEan();
+
+        $fakeAccessToken = new AccessToken('fake-access-token', 0);
+        $cardWrapper = (new ApiBank(getenv('API_URL'), (bool)getenv('VERIFY_SSL'), $fakeAccessToken))->card();
+
+        $cardWrapper->read($bankCardEan);
+    }
+
     public function testRead()
     {
         global $newBankClient;
 
-        $bankCardEan = $this->productWrapper->read($newBankClient->getId())->current()->getCards()->current()->getEan();
+        $bankCardEan = $this->productWrapper->read($newBankClient->getId())->getCards()->current()->getEan();
         $cardInfo = $this->cardWrapper->read($bankCardEan);
 
         $this->assertInstanceOf(CardRequisitesUrl::class, $cardInfo);
@@ -54,7 +70,7 @@ class CardWrapperTest extends TestCase
     {
         global $newBankClient;
 
-        $bankCardEan = $this->productWrapper->read($newBankClient->getId())->current()->getCards()->current()->getEan();
+        $bankCardEan = $this->productWrapper->read($newBankClient->getId())->getCards()->current()->getEan();
 
         $periodBegin = (new DateTime())->sub(new DateInterval('P1M'));
         $periodEnd = new DateTime();
@@ -70,7 +86,7 @@ class CardWrapperTest extends TestCase
     {
         global $newBankClient;
 
-        $bankCardEan = $this->productWrapper->read($newBankClient->getId())->current()->getCards()->current()->getEan();
+        $bankCardEan = $this->productWrapper->read($newBankClient->getId())->getCards()->current()->getEan();
 
         $p2pTransferInfo = $this->cardWrapper->p2pTransfer($bankCardEan, 'http://example.com');
 
