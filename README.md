@@ -3,9 +3,33 @@
 
 **PHP wrapper for [APIBANK](https://apibank.club)**
 
-Step 1: Create token
 
-Step 2: Send requests
+#### Get token pairs
+
+```
+$toketPairs = (new AuthManager(...$args))->generate();
+
+$accessToken = $tokenPairs->getAccessToken();
+
+$refreshToken = $tokenPairs->getRefreshToken();
+```
+
+#### Create apibank client
+
+`$apiBankClient = new ApiBank('http://api-url-example.com', true, $accessToken);`
+
+#### Send requests
+
+- Transfer funds from partner to client
+```
+$clientWrapper = $apiBankClient->client();
+
+$ean = '4bcb8f6b17d041cf8bad0337d84e25df';
+$amountToTransfer = 15.5;
+
+$isSuccess = $clientWrapper->transferFromPartnerToClient($ean, $amountToTransfer); // bool
+```
+
 
 PS: feel free to make pullrequest
 
