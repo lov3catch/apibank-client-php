@@ -135,4 +135,24 @@ class ClientWrapper
             throw (new ExceptionFactory())->fromResponse($exception->getResponse());
         }
     }
+
+    public function transferFromPartnerToClient(string $bankCardEan, float $amount): bool
+    {
+        $headers = [
+            'Authorization' => $this->accessToken->asBearer(),
+        ];
+
+        $options = [
+            'body'    => json_encode(['amount' => $amount]),
+            'headers' => $headers,
+        ];
+
+        try {
+            $response = $this->client->post('cards/' . $bankCardEan . '/p2p-webpage', $options);
+
+            return 200 === $response->getStatusCode();
+        } catch (ClientException $exception) {
+            throw (new ExceptionFactory())->fromResponse($exception->getResponse());
+        }
+    }
 }
