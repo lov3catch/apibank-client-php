@@ -148,7 +148,7 @@ class ClientWrapper
         ];
 
         try {
-            $response = $this->client->post('cards/' . $bankCardEan . '/p2p-webpage', $options);
+            $response = $this->client->post('cards/' . $bankCardEan . '/account2card', $options);
 
             return 200 === $response->getStatusCode();
         } catch (ClientException $exception) {
