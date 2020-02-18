@@ -29,10 +29,7 @@ class Transaction
 
     public function getDocDate(): \DateTimeImmutable
     {
-        // todo: complete me!
-        // return $this->getValue('doc_date');
-
-        return new \DateTimeImmutable();
+        return \DateTimeImmutable::createFromFormat('Y-m-d\TH:i:sT', $this->getValue('doc_date'));
     }
 
     public function getDocNumber(): string

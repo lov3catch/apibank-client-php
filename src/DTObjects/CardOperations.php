@@ -27,9 +27,9 @@ class CardOperations
         return $this->getValue('total_elements');
     }
 
-    public function getTransactions(): iterable
+    public function getTransactions(): \Generator
     {
-        throw new \Exception('Complete me!');
+        return $this->getObjects('transactions', Transaction::class);
     }
 
     public function getDateFrom(): \DateTimeImmutable

@@ -8,6 +8,7 @@ use ApiBank\Auth\Tokens\AccessToken;
 use ApiBank\DTObjects\CardOperations;
 use ApiBank\DTObjects\CardRequisitesUrl;
 use ApiBank\DTObjects\P2pTransfer;
+use ApiBank\DTObjects\Transaction;
 use ApiBank\Exceptions\UnauthorizedException;
 use ApiBank\Wrappers\CardWrapper;
 use ApiBank\Wrappers\ProductWrapper;
@@ -66,6 +67,17 @@ class CardWrapperTest extends TestCase
         $this->assertIsString($cardInfo->getUrl());
     }
 
+    public function testAccountToCardTransfer()
+    {
+        global $newBankClient;
+
+        $bankCardEan = $this->productWrapper->read($newBankClient->getId())->getCards()->current()->getEan();
+
+        $isComplete = $this->cardWrapper->transferFromPartnerToClient($bankCardEan, 110.0);
+
+        $this->assertTrue($isComplete);
+    }
+
     public function testOperations()
     {
         global $newBankClient;
@@ -76,6 +88,11 @@ class CardWrapperTest extends TestCase
         $periodEnd = new DateTime();
 
         $transactionsInfo = $this->cardWrapper->operations($bankCardEan, $periodBegin, $periodEnd);
+
+        /** @var Transaction $transaction */
+        foreach ($transactionsInfo->getTransactions() as $transaction) {
+            $this->assertInstanceOf(Transaction::class, $transaction);
+        }
 
         $this->assertInstanceOf(CardOperations::class, $transactionsInfo);
         $this->assertInstanceOf(DateTimeInterface::class, $transactionsInfo->getDateFrom());
