@@ -22,12 +22,12 @@ $refreshToken = $tokenPairs->getRefreshToken();
 
 - Transfer funds from partner to client
 ```
-$clientWrapper = $apiBankClient->client();
+$cardWrapper = $apiBankClient->card();
 
 $ean = '4bcb8f6b17d041cf8bad0337d84e25df';
 $amountToTransfer = 15.5;
 
-$isSuccess = $clientWrapper->transferFromPartnerToClient($ean, $amountToTransfer); // bool
+$isSuccess = $cardWrapper->transferFromPartnerToClient($ean, $amountToTransfer); // bool
 ```
 
 
