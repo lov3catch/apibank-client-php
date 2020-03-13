@@ -7,7 +7,7 @@
 #### Get token pairs
 
 ```php
-$toketPairs = (new AuthManager(...$args))->generate();
+$tokenPairs = (new AuthManager(...$args))->generate();
 
 $accessToken = $tokenPairs->getAccessToken();
 
