@@ -6,8 +6,8 @@
 
 #### Get token pairs
 
-```
-$toketPairs = (new AuthManager(...$args))->generate();
+```php
+$tokenPairs = (new AuthManager(...$args))->generate();
 
 $accessToken = $tokenPairs->getAccessToken();
 
@@ -16,12 +16,14 @@ $refreshToken = $tokenPairs->getRefreshToken();
 
 #### Create apibank client
 
-`$apiBankClient = new ApiBank('http://api-url-example.com', true, $accessToken);`
+```php
+$apiBankClient = new ApiBank('http://api-url-example.com', true, $accessToken);
+```
 
 #### Send requests
 
 - Transfer funds from partner to client
-```
+```php
 $cardWrapper = $apiBankClient->card();
 
 $ean = '4bcb8f6b17d041cf8bad0337d84e25df';
