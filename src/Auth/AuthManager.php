@@ -66,7 +66,7 @@ class AuthManager
 
     public function refresh(RefreshToken $refreshToken): TokenPairs
     {
-        return $this->doRequest($this->generateTokenUrl, $this->buildRefreshTokenOptions($refreshToken));
+        return $this->doRequest($this->refreshTokenUrl, $this->buildRefreshTokenOptions($refreshToken));
     }
 
     private function doRequest(string $uri, array $options): TokenPairs
