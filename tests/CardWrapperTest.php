@@ -6,12 +6,17 @@ use ApiBank\ApiBank;
 use ApiBank\Auth\AuthManager;
 use ApiBank\Auth\Tokens\AccessToken;
 use ApiBank\DTObjects\CardOperations;
+use ApiBank\DTObjects\CardRequisites;
 use ApiBank\DTObjects\CardRequisitesUrl;
+use ApiBank\DTObjects\Expire;
+use ApiBank\DTObjects\OperationStatus;
+use ApiBank\DTObjects\OperationStatusInfo;
 use ApiBank\DTObjects\P2pTransfer;
 use ApiBank\DTObjects\Transaction;
 use ApiBank\Exceptions\UnauthorizedException;
 use ApiBank\Wrappers\CardWrapper;
 use ApiBank\Wrappers\ProductWrapper;
+use Faker\Provider\Uuid;
 use PHPUnit\Framework\TestCase;
 
 class CardWrapperTest extends TestCase
@@ -53,15 +58,29 @@ class CardWrapperTest extends TestCase
         $fakeAccessToken = new AccessToken('fake-access-token', 0);
         $cardWrapper = (new ApiBank(getenv('API_URL'), (bool)getenv('VERIFY_SSL'), $fakeAccessToken))->card();
 
-        $cardWrapper->read($bankCardEan);
+        $cardWrapper->maskedRequisites($bankCardEan);
     }
 
-    public function testRead()
+    public function testMaskedRequisites()
     {
         global $newBankClient;
 
         $bankCardEan = $this->productWrapper->read($newBankClient->getId())->getCards()->current()->getEan();
-        $cardInfo = $this->cardWrapper->read($bankCardEan);
+        $cardInfo = $this->cardWrapper->maskedRequisites($bankCardEan);
+
+        $this->assertInstanceOf(CardRequisites::class, $cardInfo);
+        $this->assertIsString($cardInfo->getPan());
+        $this->assertInstanceOf(Expire::class, $cardInfo->getExpire());
+        $this->assertIsString($cardInfo->getExpire()->getMonth());
+        $this->assertIsString($cardInfo->getExpire()->getYear());
+    }
+
+    public function testIFrameRequisites()
+    {
+        global $newBankClient;
+
+        $bankCardEan = $this->productWrapper->read($newBankClient->getId())->getCards()->current()->getEan();
+        $cardInfo = $this->cardWrapper->IFrameRequisites($bankCardEan);
 
         $this->assertInstanceOf(CardRequisitesUrl::class, $cardInfo);
         $this->assertIsString($cardInfo->getUrl());
@@ -73,9 +92,15 @@ class CardWrapperTest extends TestCase
 
         $bankCardEan = $this->productWrapper->read($newBankClient->getId())->getCards()->current()->getEan();
 
-        $isComplete = $this->cardWrapper->transferFromPartnerToClient($bankCardEan, 110.0);
+        global $operationStatus;
+        $operationStatus = $this->cardWrapper->transferFromPartnerToClient($bankCardEan, 5.0, Uuid::uuid());
 
-        $this->assertTrue($isComplete);
+        $this->assertInstanceOf(OperationStatus::class, $operationStatus);
+        $this->assertInstanceOf(OperationStatusInfo::class, $operationStatus->getInfo());
+        $this->assertIsString($operationStatus->getInfo()->getOperationId());
+        $this->assertIsString($operationStatus->getInfo()->getStatus());
+        $this->assertIsString($operationStatus->getInfo()->getDescription());
+
     }
 
     public function testOperations()
@@ -109,6 +134,6 @@ class CardWrapperTest extends TestCase
 
         $this->assertInstanceOf(P2pTransfer::class, $p2pTransferInfo);
         $this->assertIsString($p2pTransferInfo->getPaymentPageUrl());
-        $this->assertIsString($p2pTransferInfo->getOperationId());
+        $this->assertIsString($p2pTransferInfo->getTransactionId());
     }
 }

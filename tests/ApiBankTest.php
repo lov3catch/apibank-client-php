@@ -6,6 +6,7 @@ use ApiBank\ApiBank;
 use ApiBank\Auth\AuthManager;
 use ApiBank\Wrappers\CardWrapper;
 use ApiBank\Wrappers\ClientWrapper;
+use ApiBank\Wrappers\OperationWrapper;
 use ApiBank\Wrappers\ProductWrapper;
 use PHPUnit\Framework\TestCase;
 
@@ -43,5 +44,10 @@ class ApiBankTest extends TestCase
     public function testClient()
     {
         $this->assertInstanceOf(ClientWrapper::class, $this->apibank->client());
+    }
+
+    public function testOperations()
+    {
+       $this->assertInstanceOf(OperationWrapper::class, $this->apibank->operations());
     }
 }

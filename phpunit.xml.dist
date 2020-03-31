@@ -22,6 +22,7 @@
             <file>tests/ClientWrapperTest.php</file>
             <file>tests/ProductWrapperTest.php</file>
             <file>tests/CardWrapperTest.php</file>
+            <file>tests/OperationWrapperTest.php</file>
         </testsuite>
     </testsuites>
     <filter>
@@ -34,11 +35,18 @@
         <env name="APP_SECRET" value="5638433a-9de8-4af7-a5f3-47db940b102a" force="true"/>
         <env name="LOGIN" value="operator-example" force="true"/>
         <env name="PASSWORD" value="15082020" force="true"/>
-        <env name="GENERATE_TOKEN_URL"
-             value="https://stage-0.apibank.club/auth/realms/Physics/protocol/openid-connect/token" force="true"/>
-        <env name="REFRESH_TOKEN_URL" value="https://stage-0.apibank.club/auth/" force="true"/>
+        <env name="GENERATE_TOKEN_URL" value="https://stage-0.apibank.club/auth/realms/Physics/protocol/openid-connect/token" force="true"/>
+        <env name="REFRESH_TOKEN_URL" value="https://auth.apibank.club/auth/realms/Physics/protocol/openid-connect/token" force="true"/>
         <env name="VERIFY_SSL" value="false" force="true"/>
         <env name="API_URL" value="http://stage-0.apibank.club/physics-v3/api/v3/" force="true"/>
+        <env name="WEBHOOK_URL" value="http://example.com/send_postback_here" force="true"/>
+        <env name="USER_BIRTH_COUNTRY" value="Russia" force="true"/>
+        <env name="USER_BIRTH_CITY" value="Moscow" force="true"/>
+        <env name="USER_PASSPORT_DIV" value="500-180" force="true"/>
+        <env name="USER_PASSPORT_INFO" value="Отделом УФМС России по Челябинской области в Орджоникидзевском районе г. Магнитогорска" force="true"/>
+        <env name="USER_REAL_ADDRESS" value="416356, г. Кош-Агач, ул. Филевская Б., дом 33, квартира 94" force="true"/>
+        <env name="USER_REG_ADDRESS" value="171954, г. Советский, ул. Арбатская пл, дом 8, квартира 192" force="true"/>
+        <env name="USER_POST_ADDRESS" value="412811, г. Острогожское, ул. Пилотов, дом 14, квартира 189" force="true"/>
         <env name="USER_PHONE" value="9154422453" force="true"/>
         <env name="USER_SURNAME" value="Begins" force="true"/>
         <env name="USER_NAME" value="Froddo" force="true"/>

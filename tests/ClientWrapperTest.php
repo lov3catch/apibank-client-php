@@ -6,19 +6,28 @@ use ApiBank\ApiBank;
 use ApiBank\Auth\AuthManager;
 use ApiBank\Auth\Tokens\AccessToken;
 use ApiBank\DTObjects\Client as BankClient;
+use ApiBank\DTObjects\OperationStatus;
+use ApiBank\DTValues\BirthCity;
+use ApiBank\DTValues\BirthCountry;
 use ApiBank\DTValues\Birthdate;
-use ApiBank\DTValues\ControlInfo;
 use ApiBank\DTValues\Name;
 use ApiBank\DTValues\Passport;
 use ApiBank\DTValues\PassportDate;
+use ApiBank\DTValues\PassportDiv;
+use ApiBank\DTValues\PassportInfo;
 use ApiBank\DTValues\Patronymic;
 use ApiBank\DTValues\Phone;
+use ApiBank\DTValues\PostAddress;
+use ApiBank\DTValues\RealAddress;
+use ApiBank\DTValues\RegAddress;
 use ApiBank\DTValues\Snils;
 use ApiBank\DTValues\Surname;
+use ApiBank\DTValues\Url;
 use ApiBank\Exceptions\DuplicateClientException;
 use ApiBank\Exceptions\UnauthorizedException;
 use ApiBank\Exceptions\UpgradeClientException;
 use ApiBank\Wrappers\ClientWrapper;
+use Faker\Provider\Uuid;
 use PHPUnit\Framework\TestCase;
 
 class ClientWrapperTest extends TestCase
@@ -88,43 +97,51 @@ class ClientWrapperTest extends TestCase
     public function testUpdateClient()
     {
         global $newBankClient;
+        global $randomUniqueString;
 
-        $updateInfo = $this->clientWrapper->upgrade(
-            $newBankClient->getId(),
-            new Surname(getenv('USER_SURNAME')),
-            new Name(getenv('USER_NAME')),
-            new Patronymic(getenv('USER_PATRONYMIC')),
-            new Passport(getenv('USER_PASSPORT')),
-            new PassportDate(getenv('USER_PASSPORT_DATE')),
-            new Birthdate(getenv('USER_BIRTHDATE')),
-            new Snils(getenv('USER_SNILS')),
-            new ControlInfo(getenv('USER_CONTROL_INFO'))
-        );
+        $randomUniqueString = Uuid::uuid();
 
-        $this->assertInstanceOf(BankClient::class, $updateInfo);
+        $updateInfo = $this->upgradeClient($newBankClient, $randomUniqueString);
+
+        $this->assertInstanceOf(OperationStatus::class, $updateInfo);
 
         return $updateInfo;
     }
 
-    /**
-     * @depends testUpdateClient
-     * @param BankClient $bankClient
-     * @throws Throwable
-     */
-    public function testUpdateClientWitchAlreadyUpgraded(BankClient $bankClient)
+    public function testUpdateClientWitchAlreadyUpgraded()
     {
+        global $newBankClient;
+
         $this->expectException(UpgradeClientException::class);
 
-        $this->clientWrapper->upgrade(
+        $randomUniqueString = Uuid::uuid();
+
+        $this->upgradeClient($newBankClient, $randomUniqueString);
+    }
+
+    private function upgradeClient(BankClient $bankClient, string $randomUniqueString)
+    {
+        return $this->clientWrapper->upgrade(
+            $randomUniqueString,
             $bankClient->getId(),
+            new Url(getenv('WEBHOOK_URL')),
             new Surname(getenv('USER_SURNAME')),
             new Name(getenv('USER_NAME')),
             new Patronymic(getenv('USER_PATRONYMIC')),
+            new Birthdate(getenv('USER_BIRTHDATE')),
+            new BirthCountry(getenv('USER_BIRTH_COUNTRY')),
+            new BirthCity(getenv('USER_BIRTH_CITY')),
             new Passport(getenv('USER_PASSPORT')),
             new PassportDate(getenv('USER_PASSPORT_DATE')),
-            new Birthdate(getenv('USER_BIRTHDATE')),
+            new PassportDiv(getenv('USER_PASSPORT_DIV')),
+            new PassportInfo(getenv('USER_PASSPORT_INFO')),
+            new RealAddress(getenv('USER_REAL_ADDRESS')),
+            new RegAddress(getenv('USER_REG_ADDRESS')),
+            new PostAddress(getenv('USER_POST_ADDRESS')),
             new Snils(getenv('USER_SNILS')),
-            new ControlInfo(getenv('USER_CONTROL_INFO'))
+            true,
+            true,
+            true
         );
     }
 }
