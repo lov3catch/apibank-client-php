@@ -17,38 +17,48 @@ class Transaction
         return $this->getValue('amount');
     }
 
-    public function getCurrency(): string
+    public function getCurrency(): Currency
     {
-        return $this->getValue('currency');
+        return $this->getObject('currency', Currency::class);
     }
 
-    public function getDetails(): string
+    public function getDescription(): string
     {
-        return $this->getValue('details');
+        return $this->getValue('description');
     }
 
-    public function getDocDate(): \DateTimeImmutable
+    public function getOperationDate(): \DateTimeImmutable
     {
-        return \DateTimeImmutable::createFromFormat('Y-m-d\TH:i:sT', $this->getValue('doc_date'));
+        return \DateTimeImmutable::createFromFormat('Y-m-d\TH:i:sT', $this->getValue('operation_date'));
     }
 
-    public function getDocNumber(): string
+    public function getOperationNumber(): string
     {
-        return $this->getValue('doc_number');
+        return $this->getValue('operation_number');
     }
 
-    public function getOwnerName(): string
+    public function getMerchantName(): string
     {
-        return $this->getValue('owner_name');
+        return $this->getValue('merchant_name');
     }
 
-    public function getStatus(): int
+    public function getFinStatus(): bool
     {
-        return $this->getValue('status');
+        return $this->getValue('fin_status');
+    }
+
+    public function getDebet(): bool
+    {
+        return $this->getValue('debet');
     }
 
     public function getMcc(): string
     {
         return $this->getValue('mcc');
+    }
+
+    public function getMerchantId(): string
+    {
+        return $this->getValue('merchant_id');
     }
 }

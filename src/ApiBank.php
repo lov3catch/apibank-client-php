@@ -7,6 +7,7 @@ namespace ApiBank;
 use ApiBank\Auth\Tokens\AccessToken;
 use ApiBank\Wrappers\CardWrapper;
 use ApiBank\Wrappers\ClientWrapper;
+use ApiBank\Wrappers\OperationWrapper;
 use ApiBank\Wrappers\ProductWrapper;
 use GuzzleHttp\Client;
 use GuzzleHttp\ClientInterface;
@@ -49,5 +50,10 @@ class ApiBank
     public function products(): ProductWrapper
     {
         return new ProductWrapper($this->accessToken, $this->client);
+    }
+
+    public function operations(): OperationWrapper
+    {
+        return new OperationWrapper($this->accessToken, $this->client);
     }
 }

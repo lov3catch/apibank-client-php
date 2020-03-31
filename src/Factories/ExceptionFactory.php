@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace ApiBank\Factories;
 
 use ApiBank\Exceptions\DuplicateClientException;
+use ApiBank\Exceptions\OperationNotFoundException;
 use ApiBank\Exceptions\UnauthorizedException;
 use ApiBank\Exceptions\UpgradeClientException;
 use Psr\Http\Message\ResponseInterface;
@@ -24,7 +25,11 @@ class ExceptionFactory
         /**
          * @var $exception \Exception
          */
-        foreach ([new DuplicateClientException(), new UpgradeClientException()] as $exception) {
+        foreach ([
+                     new DuplicateClientException(),
+                     new UpgradeClientException(),
+                     new OperationNotFoundException(),
+                 ] as $exception) {
             if ($exception->getCode() === $responseData['errors'][0]['code']) return $exception;
         }
 

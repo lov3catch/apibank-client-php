@@ -6,7 +6,9 @@ namespace ApiBank\Wrappers;
 
 use ApiBank\Auth\Tokens\AccessToken;
 use ApiBank\DTObjects\CardOperations;
+use ApiBank\DTObjects\CardRequisites;
 use ApiBank\DTObjects\CardRequisitesUrl;
+use ApiBank\DTObjects\OperationStatus;
 use ApiBank\DTObjects\P2pTransfer;
 use ApiBank\Factories\ExceptionFactory;
 use GuzzleHttp\ClientInterface;
@@ -31,7 +33,31 @@ class CardWrapper
         $this->client = $client;
     }
 
-    public function read(string $bankCardEan): CardRequisitesUrl
+    public function maskedRequisites(string $bankCardEan): CardRequisites
+    {
+        $headers = [
+            'Authorization' => $this->accessToken->asBearer(),
+        ];
+
+        $options = [
+            'headers' => $headers,
+        ];
+
+        try {
+            $response = $this->client->request('GET', 'virtual-cards/' . $bankCardEan, $options);
+
+            $cardRequisitesUrlInfo = json_decode($response->getBody()->getContents(), true);
+
+            $cardRequisites = new CardRequisites();
+            set_values($cardRequisites, $cardRequisitesUrlInfo);
+
+            return $cardRequisites;
+        } catch (ClientException $exception) {
+            throw (new ExceptionFactory())->fromResponse($exception->getResponse());
+        }
+    }
+
+    public function IFrameRequisites(string $bankCardEan): CardRequisitesUrl
     {
         $headers = [
             'Authorization' => $this->accessToken->asBearer(),
@@ -63,8 +89,8 @@ class CardWrapper
 
         $options = [
             'query'   => [
-                'periodBegin' => $periodBegin->format('d.m.Y'),
-                'periodEnd'   => $periodEnd->format('d.m.Y'),
+                'period_begin' => $periodBegin->format('d.m.Y'),
+                'period_end'   => $periodEnd->format('d.m.Y'),
             ],
             'headers' => $headers,
         ];
@@ -83,7 +109,7 @@ class CardWrapper
         }
     }
 
-    public function transferFromPartnerToClient(string $bankCardEan, float $amount): bool
+    public function transferFromPartnerToClient(string $bankCardEan, float $amount, string $randomUniqueString): OperationStatus
     {
         $headers = [
             'Authorization' => $this->accessToken->asBearer(),
@@ -91,14 +117,19 @@ class CardWrapper
         ];
 
         $options = [
-            'body'    => json_encode(['amount' => $amount]),
+            'body'    => json_encode(['amount' => $amount, 'operation_id' => $randomUniqueString]),
             'headers' => $headers,
         ];
 
         try {
             $response = $this->client->post('cards/' . $bankCardEan . '/account2card', $options);
 
-            return 200 === $response->getStatusCode();
+            $operationStatusData = json_decode($response->getBody()->getContents(), true);
+
+            $operationStatus = new OperationStatus();
+            set_values($operationStatus, $operationStatusData);
+
+            return $operationStatus;
         } catch (ClientException $exception) {
             throw (new ExceptionFactory())->fromResponse($exception->getResponse());
         }
@@ -112,7 +143,7 @@ class CardWrapper
         ];
 
         $options = [
-            'body'    => json_encode(['successPageUrl' => $successPageUrl]),
+            'body'    => json_encode(['success_page_url' => $successPageUrl]),
             'headers' => $headers,
         ];
 

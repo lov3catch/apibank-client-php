@@ -6,5 +6,6 @@ namespace ApiBank\Exceptions;
 
 class UnauthorizedException extends \Exception
 {
-
+    protected $code = 'S000';
+    protected $message = 'Пользователь не аутентифицирован.';
 }

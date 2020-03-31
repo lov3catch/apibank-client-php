@@ -17,8 +17,8 @@ class P2pTransfer
         return $this->getValue('payment_page_url');
     }
 
-    public function getOperationId(): string
+    public function getTransactionId(): string
     {
-        return $this->getValue('operation_id');
+        return $this->getValue('transaction_id');
     }
 }
