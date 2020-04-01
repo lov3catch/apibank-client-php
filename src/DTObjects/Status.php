@@ -7,18 +7,18 @@ namespace ApiBank\DTObjects;
 use Formapro\Values\ObjectsTrait;
 use Formapro\Values\ValuesTrait;
 
-class Currency
+class Status
 {
     use ValuesTrait;
     use ObjectsTrait;
 
-    public function code(): string
+    public function getCode(): string
     {
         return $this->getValue('code');
     }
 
-    public function number(): int
+    public function getDisplayName(): string
     {
-        return $this->getValue('code_num');
+        return $this->getValue('display_name');
     }
 }

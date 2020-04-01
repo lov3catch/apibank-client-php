@@ -14,7 +14,7 @@ class Card
 
     public function getId(): int
     {
-        return $this->getValue('id');
+        return $this->getValue('card_id');
     }
 
     public function getEan(): string
@@ -32,19 +32,24 @@ class Card
         return $this->getObject('bank', Bank::class);
     }
 
-    public function getExpire(): array
+    public function getMaskedNumber(): string
     {
-        return $this->getValue('expire');
+        return $this->getValue('masked_number');
     }
 
-    public function getCurrency(): string
+    public function getExpire(): Expire
     {
-        return $this->getValue('currency');
+        return $this->getObject('expire', Expire::class);
     }
 
-    public function getCurrencyCode(): int
+    public function getCurrency(): Currency
     {
-        return $this->getValue('currency_code');
+        return $this->getObject('currency', Currency::class);
+    }
+
+    public function getStatus(): Status
+    {
+        return $this->getObject('status', Status::class);
     }
 
     public function getBalance(): float
