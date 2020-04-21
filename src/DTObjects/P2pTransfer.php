@@ -19,6 +19,6 @@ class P2pTransfer
 
     public function getTransactionId(): string
     {
-        return $this->getValue('transaction_id');
+        return $this->getValue('operation_id');
     }
 }
