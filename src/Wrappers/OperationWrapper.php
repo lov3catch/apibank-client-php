@@ -57,7 +57,7 @@ class OperationWrapper
 
             return $operationStatus;
         } catch (ClientException $exception) {
-            throw (new ExceptionFactory())->fromResponse($exception->getResponse());
+            throw (new ExceptionFactory())->from($exception);
         }
     }
 }

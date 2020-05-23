@@ -73,7 +73,7 @@ class ClientWrapper
 
             return $this->read($bankClientId);
         } catch (ClientException $exception) {
-            throw (new ExceptionFactory())->fromResponse($exception->getResponse());
+            throw (new ExceptionFactory())->from($exception);
         }
     }
 
@@ -97,7 +97,7 @@ class ClientWrapper
 
             return $bankClient;
         } catch (ClientException $exception) {
-            throw (new ExceptionFactory())->fromResponse($exception->getResponse());
+            throw (new ExceptionFactory())->from($exception);
         }
     }
 
@@ -193,7 +193,7 @@ class ClientWrapper
 
             return $upgradeAccountLevel;
         } catch (ClientException $exception) {
-            throw (new ExceptionFactory())->fromResponse($exception->getResponse());
+            throw (new ExceptionFactory())->from($exception);
         }
     }
 }

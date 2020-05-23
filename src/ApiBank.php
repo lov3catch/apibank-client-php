@@ -56,4 +56,20 @@ class ApiBank
     {
         return new OperationWrapper($this->accessToken, $this->client);
     }
+
+    public function version()
+    {
+        return new
+        /**
+         * @property string apiVersion
+         * @property string libVersion
+         */
+        class ('3.2.0', '0.0.6') {
+            public function __construct(string $apiVersion, string $libVersion)
+            {
+                $this->apiVersion = $apiVersion;
+                $this->libVersion = $libVersion;
+            }
+        };
+    }
 }

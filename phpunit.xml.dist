@@ -23,6 +23,8 @@
             <file>tests/ProductWrapperTest.php</file>
             <file>tests/CardWrapperTest.php</file>
             <file>tests/OperationWrapperTest.php</file>
+            <file>tests/ExceptionsTest.php</file>
+            <file>tests/ApiBankVersionTest.php</file>
         </testsuite>
     </testsuites>
     <filter>

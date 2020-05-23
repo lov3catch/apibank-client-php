@@ -54,7 +54,7 @@ class ProductWrapper
                 return $product;
             }
         } catch (ClientException $exception) {
-            throw (new ExceptionFactory())->fromResponse($exception->getResponse());
+            throw (new ExceptionFactory())->from($exception);
         }
     }
 }
