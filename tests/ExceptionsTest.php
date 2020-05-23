@@ -129,6 +129,15 @@ class ExceptionsTest extends TestCase
         yield [new ClientException(
             'TestException',
             new Request('GET', 'http://example.com'),
+            new Response(404, [], json_encode([
+                'errors' => [
+                    ['code' => 'XXXX', 'message' => 'Error message']
+                ]
+            ])))];
+
+        yield [new ClientException(
+            'TestException',
+            new Request('GET', 'http://example.com'),
             new Response(404, [], json_encode([])))];
     }
 }
