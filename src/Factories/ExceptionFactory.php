@@ -4,35 +4,40 @@ declare(strict_types=1);
 
 namespace ApiBank\Factories;
 
+use ApiBank\Exceptions\DefaultException;
 use ApiBank\Exceptions\DuplicateClientException;
 use ApiBank\Exceptions\OperationNotFoundException;
 use ApiBank\Exceptions\UnauthorizedException;
 use ApiBank\Exceptions\UpgradeClientException;
-use Psr\Http\Message\ResponseInterface;
+use GuzzleHttp\Exception\ClientException;
 
 class ExceptionFactory
 {
-    private const DEFAULT_EXCEPTION_MESSAGE = 'ApiBank. Has no error code and error message.';
-
-    public function fromResponse(ResponseInterface $response): \Throwable
+    public function from(\Throwable $throwable): \Throwable
     {
-        if (401 === $response->getStatusCode()) return new UnauthorizedException();
+        if ($throwable instanceof ClientException) {
+            $resp = $throwable->getResponse();
 
-        $responseData = json_decode($response->getBody()->getContents(), true);
+            if (401 === $resp->getStatusCode()) return (new UnauthorizedException())->setResponse($resp);
 
-        if (!isset($responseData['errors'][0]['code']) || !isset($responseData['errors'][0]['message'])) return new \Exception(self::DEFAULT_EXCEPTION_MESSAGE);
+            $respContents = json_decode($resp->getBody()->getContents(), true);
 
-        /**
-         * @var $exception \Exception
-         */
-        foreach ([
-                     new DuplicateClientException(),
-                     new UpgradeClientException(),
-                     new OperationNotFoundException(),
-                 ] as $exception) {
-            if ($exception->getCode() === $responseData['errors'][0]['code']) return $exception;
+            if (!isset($respContents['errors'][0]['code']) || !isset($respContents['errors'][0]['message'])) return (new DefaultException())->setResponse($resp);
+
+            $exceptions = [
+                (new DuplicateClientException())->setResponse($resp),
+                (new UpgradeClientException())->setResponse($resp),
+                (new OperationNotFoundException())->setResponse($resp),
+            ];
+
+            /**
+             * @var $exception \Exception
+             */
+            foreach ($exceptions as $exception) {
+                if ($exception->getCode() === $respContents['errors'][0]['code']) return $exception;
+            }
         }
 
-        return new \Exception(self::DEFAULT_EXCEPTION_MESSAGE);
+        return new \Exception();
     }
 }

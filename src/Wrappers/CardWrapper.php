@@ -53,7 +53,7 @@ class CardWrapper
 
             return $cardRequisites;
         } catch (ClientException $exception) {
-            throw (new ExceptionFactory())->fromResponse($exception->getResponse());
+            throw (new ExceptionFactory())->from($exception);
         }
     }
 
@@ -77,7 +77,7 @@ class CardWrapper
 
             return $cardRequisitesUrl;
         } catch (ClientException $exception) {
-            throw (new ExceptionFactory())->fromResponse($exception->getResponse());
+            throw (new ExceptionFactory())->from($exception);
         }
     }
 
@@ -105,7 +105,7 @@ class CardWrapper
 
             return $cardOperations;
         } catch (ClientException $exception) {
-            throw (new ExceptionFactory())->fromResponse($exception->getResponse());
+            throw (new ExceptionFactory())->from($exception);
         }
     }
 
@@ -131,7 +131,7 @@ class CardWrapper
 
             return $operationStatus;
         } catch (ClientException $exception) {
-            throw (new ExceptionFactory())->fromResponse($exception->getResponse());
+            throw (new ExceptionFactory())->from($exception);
         }
     }
 
@@ -157,7 +157,7 @@ class CardWrapper
 
             return $p2pTransfer;
         } catch (ClientException $exception) {
-            throw (new ExceptionFactory())->fromResponse($exception->getResponse());
+            throw (new ExceptionFactory())->from($exception);
         }
     }
 }
