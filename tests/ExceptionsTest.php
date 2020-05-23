@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use ApiBank\Exceptions\ApiBankException;
+use ApiBank\Exceptions\DefaultException;
 use ApiBank\Exceptions\DuplicateClientException;
 use ApiBank\Exceptions\OperationNotFoundException;
 use ApiBank\Exceptions\UnauthorizedException;
@@ -76,6 +77,11 @@ class ExceptionsTest extends TestCase
             $this->assertInstanceOf(Response::class, $convertedException->getResponse());
             $this->assertEquals(404, $convertedException->getResponse()->getStatusCode());
         }
+
+        if ($convertedException instanceof DefaultException) {
+            $this->assertInstanceOf(Response::class, $convertedException->getResponse());
+            $this->assertEquals(404, $convertedException->getResponse()->getStatusCode());
+        }
     }
 
     public function internalExceptionProvider()
@@ -119,5 +125,10 @@ class ExceptionsTest extends TestCase
                     ['code' => 'F003', 'message' => 'Error message']
                 ]
             ])))];
+
+        yield [new ClientException(
+            'TestException',
+            new Request('GET', 'http://example.com'),
+            new Response(404, [], json_encode([])))];
     }
 }
