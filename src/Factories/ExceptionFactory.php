@@ -36,6 +36,8 @@ class ExceptionFactory
             foreach ($exceptions as $exception) {
                 if ($exception->getCode() === $respContents['errors'][0]['code']) return $exception;
             }
+
+            return (new DefaultException())->setResponse($resp);
         }
 
         return new \Exception();
